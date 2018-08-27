@@ -47,6 +47,10 @@
     if (!_backImageView) {
         UIImageView *imageView = [[UIImageView alloc]init];
         imageView.backgroundColor =[UIColor whiteColor];
+        imageView.layer.cornerRadius = 5;
+        imageView.layer.shadowColor = [UIColor blackColor].CGColor;
+        imageView.layer.shadowOffset = CGSizeMake(0, 0);
+        imageView.layer.shadowRadius = 5;
         _backImageView = imageView;
     }
     return _backImageView;
@@ -62,7 +66,7 @@
     }
     if (type == 0) {
         //对面
-        _backImageView.backgroundColor = [UIColor purpleColor];
+        _backImageView.backgroundColor = [UIColor colorWithRed:0.7255 green:0.8431 blue:0.9882 alpha:1];
         _textLabel.textAlignment = 0;
         _textLabel.textColor = [UIColor whiteColor];
         [_backImageView mas_updateConstraints:^(MASConstraintMaker *make) {
@@ -73,7 +77,7 @@
         }];
     }else{
         //自己
-        _backImageView.backgroundColor = [UIColor blueColor];
+        _backImageView.backgroundColor = [UIColor colorWithRed:0.4157 green:0.7333 blue:0.3843 alpha:1];
         _textLabel.textAlignment = 2;
         _textLabel.textColor = [UIColor whiteColor];
         [_backImageView mas_updateConstraints:^(MASConstraintMaker *make) {

@@ -11,6 +11,7 @@
 #import "ChartEnterView.h"
 #import "MessageObject.h"
 #import "MysizeAuto.h"
+#import "SelectedPicture.h"
 
 @interface ChatViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 {
@@ -19,10 +20,26 @@
 }
 @property (nonatomic, strong) ChartEnterView *bottomView;
 @property (nonatomic, strong) NSMutableArray *messageArray;
+@property (nonatomic, strong) UIImageView *backImageView;
+@property (nonatomic, strong) SelectedPicture *seletPIC;
 @property (nonatomic, assign) int TYpe;
 @end
 
 @implementation ChatViewController
+- (UIImageView *)backImageView{
+    if (!_backImageView) {
+        UIImageView *imageview = [[UIImageView alloc]init];
+        imageview.backgroundColor = [UIColor whiteColor];
+        imageview.userInteractionEnabled = YES;
+        NSData *imageData = [[NSUserDefaults standardUserDefaults]objectForKey:@"IMAGEFORBACK"];
+        UIImage *image = [UIImage imageWithData:imageData];
+        if (image != nil) {
+            imageview.image = image;
+        }
+        _backImageView = imageview;
+    }
+    return _backImageView;
+}
 - (ChartEnterView *)bottomView{
     if (!_bottomView) {
         ChartEnterView *view = [[ChartEnterView alloc]init];
@@ -36,7 +53,7 @@
         UICollectionView *collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0,MAINSCREEN.width, MAINSCREEN.height-50) collectionViewLayout:_flowLayout];
         collectionView.delegate =self;
         collectionView.dataSource =self;
-        collectionView.backgroundColor = [UIColor lightGrayColor];
+        collectionView.backgroundColor = [UIColor clearColor];
         [collectionView registerClass:[ChartMessageCell class] forCellWithReuseIdentifier:@"Cell"];
         [collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"header"];
         [collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"fooder"];
@@ -50,6 +67,22 @@
     [releaseButton addTarget:self action:@selector(change:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *releaseButtonItem = [[UIBarButtonItem alloc] initWithCustomView:releaseButton];
     self.navigationItem.rightBarButtonItem = releaseButtonItem;
+    
+    UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [leftButton setTitle:@"背景" forState:normal];
+    [leftButton addTarget:self action:@selector(setting:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *leftButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
+    self.navigationItem.leftBarButtonItem = leftButtonItem;
+}
+- (void)setting:(UIButton *)sender{
+    _seletPIC = [[SelectedPicture alloc]init];
+    [_seletPIC selectedImageFromeSystemPhotograph];
+    __block ChatViewController *myself = self;
+    _seletPIC.selectedPIC = ^(UIImage *image) {
+        myself.backImageView.image = image;
+        NSData *imagData = UIImagePNGRepresentation(image);
+        [[NSUserDefaults standardUserDefaults]setObject:imagData forKey:@"IMAGEFORBACK"];
+    };
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -70,6 +103,13 @@
     }
 }
 - (void)addCollection{
+    [self.view addSubview:self.backImageView];
+    [_backImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(@0);
+        make.right.equalTo(@0);
+        make.top.equalTo(@0);
+        make.bottom.equalTo(@0);
+    }];
     [self.view addSubview:self.mainCollectionView];
 }
 #pragma mark -- collectionViewDelegate
@@ -97,7 +137,7 @@
 }
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section
 {
-    return CGSizeMake(MAINSCREEN.width, 1);
+    return CGSizeMake(MAINSCREEN.width, 10);
 }
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section
 {
@@ -131,7 +171,7 @@
     if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
         UICollectionReusableView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"header" forIndexPath:indexPath];
         footerview.backgroundColor=[UIColor whiteColor];
-        footerview.frame = CGRectMake(0, 0, 0, 0);
+        footerview.frame = CGRectMake(0, 0, 0, 10);
         return footerview;
     }else{
         UICollectionReusableView *footerview = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"fooder" forIndexPath:indexPath];
